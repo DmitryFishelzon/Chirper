@@ -1,0 +1,148 @@
+/* darkTheme.css */
+
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #ffffff;
+}
+
+a {
+  color: #bb86fc;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #3700b3;
+}
+
+button {
+  background-color: #bb86fc;
+  color: #121212;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #3700b3;
+}
+
+input, textarea {
+  background-color: #333;
+  color: #e0e0e0;
+  border: 1px solid #555;
+  padding: 10px;
+  border-radius: 4px;
+  transition: border-color 0.3s ease;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #888;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #bb86fc;
+}
+
+nav {
+  background-color: #1f1f1f;
+  padding: 10px;
+}
+
+nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+nav ul li {
+  margin-right: 10px;
+}
+
+nav ul li a, nav ul li button {
+  color: #e0e0e0;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+nav ul li a:hover, nav ul li button:hover {
+  background-color: #333;
+  color: #bb86fc;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form div {
+  margin-bottom: 10px;
+}
+
+form label {
+  margin-bottom: 5px;
+  color: #bbbbbb;
+}
+
+form input, form textarea {
+  background-color: #333;
+  color: #e0e0e0;
+  border: 1px solid #555;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+form button {
+  align-self: flex-start;
+}
+
+ul {
+  padding: 0;
+}
+
+ul li {
+  list-style: none;
+  margin-bottom: 15px;
+  background-color: #1f1f1f;
+  padding: 10px;
+  border-radius: 4px;
+  transition: transform 0.3s ease;
+}
+
+ul li:hover {
+  transform: scale(1.02);
+}
+
+ul li p {
+  margin: 0;
+}
+
+ul li img {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
