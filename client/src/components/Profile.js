@@ -52,6 +52,22 @@ function Profile() {
     }
   };
 
+  const handleDelete = async (postId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:3001/post/${postId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setPosts(posts.filter(post => post._id !== postId));
+      setMessage('Post deleted successfully.');
+    } catch (error) {
+      console.error(error);
+      setMessage('Failed to delete post. Please try again.');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const imageUrl = await handleProfilePictureUpload();
@@ -86,6 +102,7 @@ function Profile() {
             <p>{post.content}</p>
             {post.image && <img src={post.image} alt="post" />}
             <p>Likes: {post.likes}</p>
+            <button onClick={() => handleDelete(post._id)}>Delete</button>
             <ul>
               {post.comments.map((comment, index) => (
                 <li key={index}>

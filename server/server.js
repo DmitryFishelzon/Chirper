@@ -40,7 +40,7 @@ const upload = multer({ storage: storage });
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(bodyParser.json());
 
-MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+MongoClient.connect(url)
     .then(client => {
         console.log('Connected to MongoDB');
         db = client.db(dbName);
@@ -247,6 +247,28 @@ app.post('/post/:id/comment', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Failed to add comment:', error);
         res.status(500).send({ message: 'Failed to add comment', error: error.message });
+    }
+});
+
+// Delete Post Endpoint
+app.delete('/post/:id', authenticateToken, async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const post = await db.collection('posts').findOne({ _id: new ObjectId(postId) });
+        if (!post) {
+            return res.status(404).send({ message: 'Post not found' });
+        }
+
+        // Ensure the user deleting the post is the owner of the post
+        if (post.username !== req.user.username) {
+            return res.status(403).send({ message: 'You do not have permission to delete this post' });
+        }
+
+        await db.collection('posts').deleteOne({ _id: new ObjectId(postId) });
+        res.status(200).send({ message: 'Post deleted successfully' });
+    } catch (error) {
+        console.error('Failed to delete post:', error);
+        res.status(500).send({ message: 'Failed to delete post', error: error.message });
     }
 });
 

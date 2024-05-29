@@ -5,6 +5,7 @@ import './Feed.css';
 function Feed() {
   const [posts, setPosts] = useState([]);
   const [message, setMessage] = useState('');
+  const [user, setUser] = useState({});
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -14,6 +15,13 @@ function Feed() {
           setMessage('No token found, please log in.');
           return;
         }
+
+        const userResponse = await axios.get('http://localhost:3001/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUser(userResponse.data.user);
 
         const response = await axios.get('http://localhost:3001/feed', {
           headers: {
@@ -60,6 +68,22 @@ function Feed() {
     }
   };
 
+  const handleDelete = async (postId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:3001/post/${postId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setPosts(posts.filter(post => post._id !== postId));
+      setMessage('Post deleted successfully.');
+    } catch (error) {
+      console.error(error);
+      setMessage('Failed to delete post. Please try again.');
+    }
+  };
+
   return (
     <div className="feed-container">
       <h2>Feed</h2>
@@ -71,6 +95,9 @@ function Feed() {
             {post.image && <img src={post.image} alt="post" />}
             <p>Likes: {post.likes}</p>
             <button onClick={() => handleLike(post._id)}>Like</button>
+            {post.username === user.username && (
+              <button onClick={() => handleDelete(post._id)}>Delete</button>
+            )}
             <div>
               <input type="text" placeholder="Add a comment" onKeyDown={(e) => {
                 if (e.key === 'Enter') {
