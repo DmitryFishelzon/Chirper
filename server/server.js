@@ -259,7 +259,6 @@ app.delete('/post/:id', authenticateToken, async (req, res) => {
             return res.status(404).send({ message: 'Post not found' });
         }
 
-        // Ensure the user deleting the post is the owner of the post
         if (post.username !== req.user.username) {
             return res.status(403).send({ message: 'You do not have permission to delete this post' });
         }
