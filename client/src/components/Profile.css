@@ -1,3 +1,5 @@
+/* Profile.css */
+
 .profile-container {
   background-color: #1f1f1f;
   color: #e0e0e0;
@@ -36,6 +38,21 @@
   transform: scale(1.02);
 }
 
+.profile-container ul li .post-header,
+.profile-container ul li .comment-header,
+.profile-container ul li .reply-header {
+  display: flex;
+  align-items: center;
+}
+
+.profile-container ul li .profile-picture {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
 .profile-container ul li p {
   margin: 0;
 }
@@ -50,4 +67,28 @@
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.profile-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-container form input[type="file"] {
+  margin-bottom: 10px;
+}
+
+.profile-container form button {
+  align-self: flex-start;
+  background-color: #bb86fc;
+  color: #121212;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.profile-container form button:hover {
+  background-color: #3700b3;
 }

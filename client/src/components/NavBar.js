@@ -6,6 +6,7 @@ function NavBar() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
+  // Function to handle logout
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
@@ -21,7 +22,6 @@ function NavBar() {
           </>
         ) : (
           <>
-            <li><Link to="/">Home</Link></li>
             <li><Link to="/feed">Feed</Link></li>
             <li><Link to="/profile">Profile</Link></li>
             <li><Link to="/post">Post</Link></li>

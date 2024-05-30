@@ -8,6 +8,7 @@ function Post() {
   const [message, setMessage] = useState('');
   const fileInputRef = useRef(null);
 
+  // Function to handle image upload to the server
   const handleImageUpload = async () => {
     if (!image) return null;
 
@@ -30,6 +31,7 @@ function Post() {
     }
   };
 
+  // Function to handle form submission for creating a new post
   const handleSubmit = async (e) => {
     e.preventDefault();
     const imageUrl = await handleImageUpload();

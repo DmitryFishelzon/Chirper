@@ -42,7 +42,6 @@ app.use(bodyParser.json());
 
 MongoClient.connect(url)
     .then(client => {
-        console.log('Connected to MongoDB');
         db = client.db(dbName);
     })
     .catch(error => {
@@ -89,7 +88,6 @@ app.post('/register', async (req, res) => {
         });
         res.status(201).send({ message: 'User registered successfully' });
     } catch (error) {
-        console.error('Error during registration:', error);
         res.status(500).send({ message: 'Internal server error' });
     }
 });
@@ -116,7 +114,6 @@ app.post('/login', async (req, res) => {
         const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
         res.status(200).send({ success: true, message: 'Login successful', token });
     } catch (error) {
-        console.error('Error during login:', error);
         res.status(500).send({ message: 'Internal server error' });
     }
 });
@@ -136,7 +133,6 @@ app.post('/uploadProfilePicture', authenticateToken, upload.single('image'), asy
         );
         res.status(201).send({ imagePath: imagePath });
     } catch (error) {
-        console.error('Failed to upload profile picture:', error);
         res.status(500).send({ message: 'Failed to upload profile picture', error: error.message });
     }
 });
@@ -151,7 +147,6 @@ app.post('/uploadPostImage', authenticateToken, upload.single('image'), async (r
         const imagePath = req.file.path;
         res.status(201).send({ imagePath: imagePath });
     } catch (error) {
-        console.error('Failed to upload post image:', error);
         res.status(500).send({ message: 'Failed to upload post image', error: error.message });
     }
 });
@@ -163,7 +158,6 @@ app.get('/profile', authenticateToken, async (req, res) => {
         const posts = await db.collection('posts').find({ username: req.user.username }).toArray();
         res.status(200).send({ user, posts });
     } catch (error) {
-        console.error('Failed to fetch profile data:', error);
         res.status(500).send({ message: 'Failed to fetch profile data', error: error.message });
     }
 });
@@ -174,7 +168,6 @@ app.get('/feed', authenticateToken, async (req, res) => {
         const posts = await db.collection('posts').find().toArray();
         res.status(200).send(posts);
     } catch (error) {
-        console.error('Failed to fetch posts:', error);
         res.status(500).send({ message: 'Failed to fetch posts', error: error.message });
     }
 });
@@ -188,35 +181,93 @@ app.post('/post', authenticateToken, async (req, res) => {
     }
 
     try {
+        const user = await db.collection('users').findOne({ username: req.user.username });
+
         const post = {
             content,
             image,
-            likes: 0,
+            likesCount: 0,
+            likes: [],
             comments: [],
             createdAt: new Date(),
             username: req.user.username,
+            profilePicture: user.profilePicture,
         };
         await db.collection('posts').insertOne(post);
         res.status(201).send({ message: 'Post created successfully', post });
     } catch (error) {
-        console.error('Failed to create post:', error);
         res.status(500).send({ message: 'Failed to create post', error: error.message });
+    }
+});
+
+// Update Post Content Endpoint
+app.put('/post/:id', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { content } = req.body;
+
+    if (!content) {
+        return res.status(400).send({ message: 'Content is required' });
+    }
+
+    try {
+        const post = await db.collection('posts').findOne({ _id: new ObjectId(id) });
+
+        if (!post) {
+            return res.status(404).send({ message: 'Post not found' });
+        }
+
+        if (post.username !== req.user.username) {
+            return res.status(403).send({ message: 'Unauthorized to update this post' });
+        }
+
+        await db.collection('posts').updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { content } }
+        );
+
+        res.status(200).send({ message: 'Post updated successfully' });
+    } catch (error) {
+        res.status(500).send({ message: 'Failed to update post', error: error.message });
+    }
+});
+
+// Update Bio Endpoint
+app.put('/updateBio', authenticateToken, async (req, res) => {
+    const { bio } = req.body;
+
+    try {
+        await db.collection('users').updateOne(
+            { username: req.user.username },
+            { $set: { bio: bio } }
+        );
+        res.status(200).send({ message: 'Bio updated successfully' });
+    } catch (error) {
+        res.status(500).send({ message: 'Failed to update bio', error: error.message });
     }
 });
 
 // Like Post Endpoint
 app.post('/post/:id/like', authenticateToken, async (req, res) => {
+    const postId = req.params.id;
+
     try {
-        const postId = req.params.id;
         const post = await db.collection('posts').findOne({ _id: new ObjectId(postId) });
+
         if (!post) {
             return res.status(404).send({ message: 'Post not found' });
         }
 
-        await db.collection('posts').updateOne({ _id: new ObjectId(postId) }, { $inc: { likes: 1 } });
+        if (post.likes.includes(req.user.username)) {
+            return res.status(400).send({ message: 'You have already liked this post' });
+        }
+
+        await db.collection('posts').updateOne(
+            { _id: new ObjectId(postId) },
+            { $inc: { likesCount: 1 }, $push: { likes: req.user.username } }
+        );
+
         res.status(200).send({ message: 'Post liked successfully' });
     } catch (error) {
-        console.error('Failed to like post:', error);
         res.status(500).send({ message: 'Failed to like post', error: error.message });
     }
 });
@@ -224,50 +275,237 @@ app.post('/post/:id/like', authenticateToken, async (req, res) => {
 // Comment on Post Endpoint
 app.post('/post/:id/comment', authenticateToken, async (req, res) => {
     const { comment } = req.body;
+    const postId = req.params.id;
 
     if (!comment) {
         return res.status(400).send({ message: 'Comment is required' });
     }
 
     try {
-        const postId = req.params.id;
+        const user = await db.collection('users').findOne({ username: req.user.username });
         const post = await db.collection('posts').findOne({ _id: new ObjectId(postId) });
+
         if (!post) {
             return res.status(404).send({ message: 'Post not found' });
         }
 
         const newComment = {
+            _id: new ObjectId(),
             username: req.user.username,
+            profilePicture: user.profilePicture,
             comment,
             createdAt: new Date(),
+            likes: [],
+            replies: [],
         };
 
-        await db.collection('posts').updateOne({ _id: new ObjectId(postId) }, { $push: { comments: newComment } });
-        res.status(200).send({ message: 'Comment added successfully' });
+        await db.collection('posts').updateOne(
+            { _id: new ObjectId(postId) },
+            { $push: { comments: newComment } }
+        );
+
+        res.status(200).send({ message: 'Comment added successfully', comment: newComment });
     } catch (error) {
-        console.error('Failed to add comment:', error);
         res.status(500).send({ message: 'Failed to add comment', error: error.message });
     }
 });
 
-// Delete Post Endpoint
-app.delete('/post/:id', authenticateToken, async (req, res) => {
+// Like Comment Endpoint
+app.post('/post/:postId/comment/:commentId/like', authenticateToken, async (req, res) => {
+    const { postId, commentId } = req.params;
+
     try {
-        const postId = req.params.id;
         const post = await db.collection('posts').findOne({ _id: new ObjectId(postId) });
         if (!post) {
             return res.status(404).send({ message: 'Post not found' });
         }
 
+        const commentIndex = post.comments.findIndex(c => c._id.toString() === commentId);
+        if (commentIndex === -1) {
+            return res.status(404).send({ message: 'Comment not found' });
+        }
+
+        const comment = post.comments[commentIndex];
+        if (comment.likes.includes(req.user.username)) {
+            return res.status(400).send({ message: 'You have already liked this comment' });
+        }
+
+        post.comments[commentIndex].likes.push(req.user.username);
+
+        await db.collection('posts').updateOne(
+            { _id: new ObjectId(postId), "comments._id": new ObjectId(commentId) },
+            { $set: { "comments.$.likes": comment.likes } }
+        );
+
+        res.status(200).send({ message: 'Comment liked successfully' });
+    } catch (error) {
+        res.status(500).send({ message: 'Failed to like comment', error: error.message });
+    }
+});
+
+// Like Reply Endpoint
+app.post('/post/:postId/comment/:commentId/reply/:replyId/like', authenticateToken, async (req, res) => {
+    const { postId, commentId, replyId } = req.params;
+
+    try {
+        const post = await db.collection('posts').findOne({ _id: new ObjectId(postId) });
+        if (!post) {
+            return res.status(404).send({ message: 'Post not found' });
+        }
+
+        const commentIndex = post.comments.findIndex(c => c._id.toString() === commentId);
+        if (commentIndex === -1) {
+            return res.status(404).send({ message: 'Comment not found' });
+        }
+
+        const replyIndex = post.comments[commentIndex].replies.findIndex(r => r._id.toString() === replyId);
+        if (replyIndex === -1) {
+            return res.status(404).send({ message: 'Reply not found' });
+        }
+
+        const reply = post.comments[commentIndex].replies[replyIndex];
+        if (reply.likes.includes(req.user.username)) {
+            return res.status(400).send({ message: 'You have already liked this reply' });
+        }
+
+        post.comments[commentIndex].replies[replyIndex].likes.push(req.user.username);
+
+        await db.collection('posts').updateOne(
+            { _id: new ObjectId(postId), "comments._id": new ObjectId(commentId), "comments.replies._id": new ObjectId(replyId) },
+            { $set: { "comments.$[comment].replies.$[reply].likes": reply.likes } },
+            { arrayFilters: [{ "comment._id": new ObjectId(commentId) }, { "reply._id": new ObjectId(replyId) }] }
+        );
+
+        res.status(200).send({ message: 'Reply liked successfully' });
+    } catch (error) {
+        res.status(500).send({ message: 'Failed to like reply', error: error.message });
+    }
+});
+
+// Reply to Comment Endpoint
+app.post('/post/:postId/comment/:commentId/reply', authenticateToken, async (req, res) => {
+    const { reply } = req.body;
+    const { postId, commentId } = req.params;
+
+    if (!reply) {
+        return res.status(400).send({ message: 'Reply is required' });
+    }
+
+    try {
+        const user = await db.collection('users').findOne({ username: req.user.username });
+        const post = await db.collection('posts').findOne({ _id: new ObjectId(postId) });
+
+        if (!post) {
+            return res.status(404).send({ message: 'Post not found' });
+        }
+
+        const newReply = {
+            _id: new ObjectId(),
+            username: req.user.username,
+            profilePicture: user.profilePicture,
+            reply,
+            createdAt: new Date(),
+            likes: [],
+        };
+
+        await db.collection('posts').updateOne(
+            { _id: new ObjectId(postId), "comments._id": new ObjectId(commentId) },
+            { $push: { "comments.$.replies": newReply } }
+        );
+
+        res.status(200).send({ message: 'Reply added successfully', reply: newReply });
+    } catch (error) {
+        res.status(500).send({ message: 'Failed to add reply', error: error.message });
+    }
+});
+
+// Delete Post Endpoint
+app.delete('/post/:id', authenticateToken, async (req, res) => {
+    const postId = req.params.id;
+
+    try {
+        const post = await db.collection('posts').findOne({ _id: new ObjectId(postId) });
+
+        if (!post) {
+            return res.status(404).send({ message: 'Post not found' });
+        }
+
         if (post.username !== req.user.username) {
-            return res.status(403).send({ message: 'You do not have permission to delete this post' });
+            return res.status(403).send({ message: 'Unauthorized to delete this post' });
         }
 
         await db.collection('posts').deleteOne({ _id: new ObjectId(postId) });
+
         res.status(200).send({ message: 'Post deleted successfully' });
     } catch (error) {
-        console.error('Failed to delete post:', error);
         res.status(500).send({ message: 'Failed to delete post', error: error.message });
+    }
+});
+
+// Delete Comment Endpoint
+app.delete('/post/:postId/comment/:commentId', authenticateToken, async (req, res) => {
+    const { postId, commentId } = req.params;
+
+    try {
+        const post = await db.collection('posts').findOne({ _id: new ObjectId(postId) });
+
+        if (!post) {
+            return res.status(404).send({ message: 'Post not found' });
+        }
+
+        const comment = post.comments.find(c => c._id.toString() === commentId);
+        if (!comment) {
+            return res.status(404).send({ message: 'Comment not found' });
+        }
+
+        if (comment.username !== req.user.username && post.username !== req.user.username) {
+            return res.status(403).send({ message: 'Unauthorized to delete this comment' });
+        }
+
+        await db.collection('posts').updateOne(
+            { _id: new ObjectId(postId) },
+            { $pull: { comments: { _id: new ObjectId(commentId) } } }
+        );
+
+        res.status(200).send({ message: 'Comment deleted successfully' });
+    } catch (error) {
+        res.status(500).send({ message: 'Failed to delete comment', error: error.message });
+    }
+});
+
+// Delete Reply Endpoint
+app.delete('/post/:postId/comment/:commentId/reply/:replyId', authenticateToken, async (req, res) => {
+    const { postId, commentId, replyId } = req.params;
+
+    try {
+        const post = await db.collection('posts').findOne({ _id: new ObjectId(postId) });
+
+        if (!post) {
+            return res.status(404).send({ message: 'Post not found' });
+        }
+
+        const comment = post.comments.find(c => c._id.toString() === commentId);
+        if (!comment) {
+            return res.status(404).send({ message: 'Comment not found' });
+        }
+
+        const reply = comment.replies.find(r => r._id.toString() === replyId);
+        if (!reply) {
+            return res.status(404).send({ message: 'Reply not found' });
+        }
+
+        if (reply.username !== req.user.username && post.username !== req.user.username) {
+            return res.status(403).send({ message: 'Unauthorized to delete this reply' });
+        }
+
+        await db.collection('posts').updateOne(
+            { _id: new ObjectId(postId), "comments._id": new ObjectId(commentId) },
+            { $pull: { "comments.$.replies": { _id: new ObjectId(replyId) } } }
+        );
+
+        res.status(200).send({ message: 'Reply deleted successfully' });
+    } catch (error) {
+        res.status(500).send({ message: 'Failed to delete reply', error: error.message });
     }
 });
 

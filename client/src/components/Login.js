@@ -8,6 +8,7 @@ function Login() {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
+  // Function to handle form submission for login
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

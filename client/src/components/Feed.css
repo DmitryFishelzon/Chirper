@@ -1,3 +1,5 @@
+/* Feed.css */
+
 .feed-container {
   background-color: #1f1f1f;
   color: #e0e0e0;
@@ -29,6 +31,21 @@
 
 .feed-container ul li:hover {
   transform: scale(1.02);
+}
+
+.feed-container ul li .post-header,
+.feed-container ul li .comment-header,
+.feed-container ul li .reply-header {
+  display: flex;
+  align-items: center;
+}
+
+.feed-container ul li .profile-picture {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
 }
 
 .feed-container ul li p {

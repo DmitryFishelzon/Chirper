@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Home from './components/Home';
 import Profile from './components/Profile';
 import Register from './components/Register';
 import Login from './components/Login';
@@ -17,7 +16,6 @@ function App() {
       <div>
         <NavBar />
         <Routes>
-          <Route path="/" element={<ProtectedRoute element={<Home />} />} />
           <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />

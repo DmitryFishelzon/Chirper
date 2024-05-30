@@ -7,6 +7,7 @@ function Register() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
+  // Function to handle form submission for registration
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
