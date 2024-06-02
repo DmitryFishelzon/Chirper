@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './Profile.css';
+import './Shared.css'; 
 
 function Profile() {
   const [user, setUser] = useState({});
@@ -278,7 +279,7 @@ function Profile() {
   };
 
   return (
-    <div className="profile-container">
+    <div className="profile-container container">
       <h2>Profile</h2>
       {message && <p>{message}</p>}
       <div>
@@ -357,13 +358,13 @@ function Profile() {
                             <div className="reply-header">
                               <img src={reply.profilePicture} alt="profile" className="profile-picture" />
                               <p><strong>{reply.username}</strong>: {reply.reply}</p>
-                              <div className="reply-actions">
-                                <p>Likes: {reply.likes ? reply.likes.length : 0}</p>
-                                <button onClick={() => handleLikeReply(post._id, comment._id, reply._id)}>Like</button>
-                                {(reply.username === user.username || post.username === user.username) && (
-                                  <button onClick={() => handleDeleteReply(post._id, comment._id, reply._id)}>Delete</button>
-                                )}
-                              </div>
+                            </div>
+                            <div className="reply-actions">
+                              <p>Likes: {reply.likes ? reply.likes.length : 0}</p>
+                              <button onClick={() => handleLikeReply(post._id, comment._id, reply._id)}>Like</button>
+                              {(reply.username === user.username || post.username === user.username) && (
+                                <button onClick={() => handleDeleteReply(post._id, comment._id, reply._id)}>Delete</button>
+                              )}
                             </div>
                           </li>
                         )) : null}

@@ -1,6 +1,7 @@
 /* Feed.css */
 
-.feed-container {
+.feed-container,
+.profile-container {
   background-color: #1f1f1f;
   color: #e0e0e0;
   padding: 20px;
@@ -11,16 +12,19 @@
   animation: fadeIn 0.5s ease-in-out;
 }
 
-.feed-container h2 {
+.feed-container h2,
+.profile-container h2 {
   color: #ffffff;
   margin-bottom: 20px;
 }
 
-.feed-container ul {
+.feed-container ul,
+.profile-container ul {
   padding: 0;
 }
 
-.feed-container ul li {
+.feed-container ul li,
+.profile-container ul li {
   list-style: none;
   margin-bottom: 15px;
   background-color: #2b2b2b;
@@ -29,18 +33,23 @@
   transition: transform 0.3s ease;
 }
 
-.feed-container ul li:hover {
+.feed-container ul li:hover,
+.profile-container ul li:hover {
   transform: scale(1.02);
 }
 
 .feed-container ul li .post-header,
 .feed-container ul li .comment-header,
-.feed-container ul li .reply-header {
+.feed-container ul li .reply-header,
+.profile-container ul li .post-header,
+.profile-container ul li .comment-header,
+.profile-container ul li .reply-header {
   display: flex;
   align-items: center;
 }
 
-.feed-container ul li .profile-picture {
+.feed-container ul li .profile-picture,
+.profile-container ul li .profile-picture {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -48,16 +57,23 @@
   margin-right: 10px;
 }
 
-.feed-container ul li p {
+.feed-container ul li p,
+.profile-container ul li p {
   margin: 0;
 }
 
-.feed-container ul li img {
+.feed-container ul li img,
+.profile-container ul li img {
   max-width: 100%;
   border-radius: 4px;
 }
 
-.feed-container button {
+.feed-container button,
+.profile-container button,
+.feed-container .comment-actions button,
+.feed-container .reply-actions button,
+.profile-container .comment-actions button,
+.profile-container .reply-actions button {
   background-color: #bb86fc;
   color: #121212;
   border: none;
@@ -67,11 +83,17 @@
   transition: background-color 0.3s ease;
 }
 
-.feed-container button:hover {
+.feed-container button:hover,
+.profile-container button:hover,
+.feed-container .comment-actions button:hover,
+.feed-container .reply-actions button:hover,
+.profile-container .comment-actions button:hover,
+.profile-container .reply-actions button:hover {
   background-color: #3700b3;
 }
 
-.feed-container input {
+.feed-container input,
+.profile-container input {
   background-color: #333;
   color: #e0e0e0;
   border: 1px solid #555;
@@ -80,10 +102,33 @@
   transition: border-color 0.3s ease;
 }
 
-.feed-container input::placeholder {
+.feed-container input::placeholder,
+.profile-container input::placeholder {
   color: #888;
 }
 
-.feed-container input:focus {
+.feed-container input:focus,
+.profile-container input:focus {
   border-color: #bb86fc;
+}
+
+.feed-container .reply,
+.profile-container .reply {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.feed-container .reply .reply-text,
+.profile-container .reply .reply-text {
+  flex-grow: 1;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

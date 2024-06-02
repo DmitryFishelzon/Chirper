@@ -1,0 +1,115 @@
+/* Shared.css */
+
+.container {
+    background-color: #1f1f1f;
+    color: #e0e0e0;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 600px;
+    margin: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  .container h2 {
+    color: #ffffff;
+    margin-bottom: 20px;
+  }
+  
+  .container ul {
+    padding: 0;
+  }
+  
+  .container ul li {
+    list-style: none;
+    margin-bottom: 15px;
+    background-color: #2b2b2b;
+    padding: 10px;
+    border-radius: 4px;
+    transition: transform 0.3s ease;
+  }
+  
+  .container ul li:hover {
+    transform: scale(1.02);
+  }
+  
+  .container ul li .header,
+  .container ul li .comment-header,
+  .container ul li .reply-header {
+    display: flex;
+    align-items: center;
+  }
+  
+  .container ul li .profile-picture {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+  }
+  
+  .container ul li p {
+    margin: 0;
+  }
+  
+  .container ul li img {
+    max-width: 100%;
+    border-radius: 4px;
+  }
+  
+  .container button {
+    background-color: #bb86fc;
+    color: #121212;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .container button:hover {
+    background-color: #3700b3;
+  }
+  
+  .container input {
+    background-color: #333;
+    color: #e0e0e0;
+    border: 1px solid #555;
+    padding: 10px;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+  }
+  
+  .container input::placeholder {
+    color: #888;
+  }
+  
+  .container input:focus {
+    border-color: #bb86fc;
+  }
+  
+  .container .reply {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+  
+  .container .reply .reply-text {
+    flex-grow: 1;
+  }
+  
+  .container .reply .reply-actions {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }

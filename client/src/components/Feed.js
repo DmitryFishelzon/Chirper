@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Feed.css';
+import './Shared.css';
 
 function Feed() {
   const [posts, setPosts] = useState([]);
@@ -213,7 +214,7 @@ function Feed() {
   };
 
   return (
-    <div className="feed-container">
+    <div className="feed-container container">
       <h2>Feed</h2>
       {message && <p>{message}</p>}
       <ul>
@@ -243,7 +244,9 @@ function Feed() {
                     </div>
                     <p>Likes: {comment.likes ? comment.likes.length : 0}</p>
                     <button onClick={() => handleLikeComment(post._id, comment._id)}>Like</button>
-                    {comment.username === currentUser && <button onClick={() => handleDeleteComment(post._id, comment._id)}>Delete</button>}
+                    {(comment.username === currentUser || post.username === currentUser) && (
+                      <button onClick={() => handleDeleteComment(post._id, comment._id)}>Delete</button>
+                    )}
                     <div>
                       <input type="text" placeholder="Reply to comment" onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -257,9 +260,13 @@ function Feed() {
                             <div className="reply-header">
                               <img src={reply.profilePicture} alt="profile" className="profile-picture" />
                               <p><strong>{reply.username}</strong>: {reply.reply}</p>
+                            </div>
+                            <div className="reply-actions">
                               <p>Likes: {reply.likes ? reply.likes.length : 0}</p>
                               <button onClick={() => handleLikeReply(post._id, comment._id, reply._id)}>Like</button>
-                              {reply.username === currentUser && <button onClick={() => handleDeleteReply(post._id, comment._id, reply._id)}>Delete</button>}
+                              {(reply.username === currentUser || post.username === currentUser) && (
+                                <button onClick={() => handleDeleteReply(post._id, comment._id, reply._id)}>Delete</button>
+                              )}
                             </div>
                           </li>
                         )) : null}
